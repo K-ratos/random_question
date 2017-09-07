@@ -1,2 +1,2 @@
 # random_question
-Random Question from hackerearth
+Displays a Random Question from hackerearth to solve

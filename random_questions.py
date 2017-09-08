@@ -1,6 +1,8 @@
 import dryscrape
 from bs4 import BeautifulSoup
 import random
+import subprocess
+import re
 
 base_url = "https://www.hackerearth.com"
 browser = dryscrape.Session()
@@ -35,71 +37,14 @@ def parse_problem_list_page(link):
     print("Enter p to display problem(not always good format) else e")
     answer = input()
     if answer == "p":
-        soup = html_parse_link(link)
-        problem_statement = soup.find("div", class_="starwars-lab")
-        problem_soup= BeautifulSoup(str(problem_statement), "lxml")
-        problem_statement = problem_soup.find_all("p")
-        statement = ""
-        for i in problem_statement:
-            for j in i.contents:
-                if str(j.string)=="None":
-                    statement+="\n"
-                else:
-                    j = str(j.string)
-                    if j.endswith(":-"):
-                        statement+="\n\n"+j+"\n\n"
-                    else:
-                        statement+=j
-        print(statement)
-        input_output = soup.find_all("pre")
-        print("Example:\n")
-        print("INPUT")
-        print(input_output[0].string)
-        print("OUTPUT")
-        print(input_output[1].string)
-        explaination = soup.find_all("span", class_="weight-600 form-label")
-        end_stuff = soup.find_all("div", class_="less-margin")
-        if explaination:
-            print("Explaination")
-            statement = ""
-            for i in end_stuff[1].contents:
-                if str(i.string)!="None":
-                        statement+=str(i.string)
-                else:
-                    for j in i.contents:
-                        if str(j.string)=="None":
-                            statement+="\n"
-                        else:
-                            j = str(j.string)
-                            if j.endswith(":-") or j.endswith(":"):
-                                statement+="\n\n"+j+"\n\n"
-                            else:
-                                statement+=j
-            print(statement)
-            end_stuff = soup.find("div", class_="standard-margin light small problem-guidelines")
-            soup =  BeautifulSoup(str(end_stuff), "lxml")
-            end_stuff = soup.find_all("div")
-            statement = ""
-            for i in range(1,4):
-                for each in end_stuff[i].contents:
-                    if str(each.string) != "None":
-                        statement+=each.string
-                    else:
-                        for j in each.contents:
-                            statement+=str(j.string).strip("\n")
-            print(statement)
-        else:
-            end_stuff = soup.find_all("div", class_="standard-margin light small problem-guidelines")
-            soup =  BeautifulSoup(str(end_stuff), "lxml")
-            end_stuff = soup.find_all("div")
-            statement = ""
-            for i in range(1,4):
-                if str(each.string) != "None":
-                    statement+=each.string
-                else:
-                    for j in each.contents:
-                        statement+=j.string
-            print(statement)
+        command = 'lynx ' + link + ' -dump'
+        x = subprocess.check_output(command, shell=True)
+        try:
+            s = re.search("Analytics", (x.decode("utf-8", 'ignore'))).end()
+            e = re.search("CODE EDITOR", (x.decode("utf-8", 'ignore'))).start()
+        except:
+            print()
+        print(x.decode("utf-8", 'ignore')[s:e])
     else:
         print("Happy Coding!!")
 
